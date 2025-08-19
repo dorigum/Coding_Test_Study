@@ -1,56 +1,59 @@
 import os
-import datetime
 
-# 유형별 폴더 리스트
-CATEGORY_DIRS = [
-    "Queue",
-    "Stack",
-    "Sort",
-    "Greedy",
-    "DFS_BFS",
-    "BinarySearch",
-    "DynamicProgramming"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+README_PATH = os.path.join(BASE_DIR, "README.md")
+
+# 유형별 폴더 순서 지정
+CATEGORY_ORDER = [
+    "Queue", "Stack", "Sort", "Implementation", "BruteForce"
 ]
 
-README_PATH = "README.md"
+CATEGORY_NAMES = {
+    "Queue": "🛠 자료구조 (큐)",
+    "Stack": "🛠 자료구조 (스택)",
+    "Sort": "📊 정렬",
+    "Implementation": "🧠 구현",
+    "BruteForce": "🧠 완전탐색"
+}
 
-def generate_readme():
-    total_count = 0
-    latest_update = None
+def generate_links():
+    result = []
+    for category in CATEGORY_ORDER:
+        category_path = os.path.join(BASE_DIR, category)
+        if not os.path.exists(category_path):
+            continue
+        
+        result.append(f"### {CATEGORY_NAMES[category]}")
+        for filename in sorted(os.listdir(category_path)):
+            if filename.endswith(".md"):
+                title = filename.replace(".md", "").replace("_", " ")
+                link = f"./{category}/{filename}"
+                result.append(f"- [{title}]({link})")
+        result.append("")  # 카테고리 간 공백
+    return "\n".join(result)
 
-    readme_lines = []
-    readme_lines.append("# 📚 Coding Test Solutions (Java)\n")
-    readme_lines.append("코딩 테스트 문제 풀이 및 해설 모음입니다.\n")
-    readme_lines.append("> Java 기반 풀이, 문제 유형별 정리\n\n")
+def update_readme():
+    with open(README_PATH, "r", encoding="utf-8") as f:
+        readme_content = f.read()
 
-    for category in CATEGORY_DIRS:
-        if os.path.exists(category):
-            readme_lines.append(f"## 📂 {category}\n")
-            files = sorted([f for f in os.listdir(category) if f.endswith(".md")])
-            total_count += len(files)
-            for file in files:
-                title = file.replace(".md", "").replace("_", " ")
-                link = f"{category}/{file}"
-                readme_lines.append(f"- [{title}]({link})")
-                # 최신 업데이트 날짜 갱신
-                file_time = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(category, file)))
-                if latest_update is None or file_time > latest_update:
-                    latest_update = file_time
-            readme_lines.append("\n")
+    start_marker = "## 📂 문제 유형별 목록"
+    end_marker = "## 🗂️ 폴더 구조"
 
-    # 통계 정보 추가
-    readme_lines.insert(3, f"**📌 총 문제 수:** {total_count}개")
-    if latest_update:
-        readme_lines.insert(4, f"**🕒 최근 업데이트:** {latest_update.strftime('%Y-%m-%d %H:%M:%S')}")
-    readme_lines.insert(5, "\n---\n")
+    start_idx = readme_content.find(start_marker)
+    end_idx = readme_content.find(end_marker)
+
+    if start_idx == -1 or end_idx == -1:
+        print("❌ README.md에 마커 위치를 찾을 수 없습니다.")
+        return
+
+    before = readme_content[:start_idx + len(start_marker)]
+    after = readme_content[end_idx:]
+
+    new_content = before + "\n\n" + generate_links() + "\n" + after
 
     with open(README_PATH, "w", encoding="utf-8") as f:
-        f.write("\n".join(readme_lines))
-
-    print(f"✅ README 갱신 완료 → {README_PATH}")
-    print(f"📌 총 문제 수: {total_count}개")
-    if latest_update:
-        print(f"🕒 최근 업데이트: {latest_update.strftime('%Y-%m-%d %H:%M:%S')}")
+        f.write(new_content)
+    print("✅ README.md 업데이트 완료!")
 
 if __name__ == "__main__":
-    generate_readme()
+    update_readme()

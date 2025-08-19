@@ -1,3 +1,7 @@
+// 프로그래머스 코딩테스트 연습
+// 정렬
+// K번째수(Level 1)
+
 import java.util.*;
 
 class Solution {

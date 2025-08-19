@@ -40,6 +40,7 @@ class Solution {
             if(target == sum) {
                 temp += 1;
             }
+
         } else {
             // 현재 숫자를 +로 더하는 경우
             dfs(numbers, target, depth+1, sum + numbers[depth]);
